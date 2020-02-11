@@ -1,0 +1,141 @@
+type: edu
+custom_name: stage5
+files:
+- name: test/FlashcardsTest.java
+  visible: false
+  text: |
+    import common.FlashcardsStage5Test;
+
+    public class FlashcardsTest extends FlashcardsStage5Test {
+        // just empty class, but not abstract so it can be run
+    }
+  learner_created: false
+- name: src/flashcards/Main.java
+  visible: true
+  text: |
+    package flashcards;
+
+    import java.io.BufferedReader;
+    import java.io.IOException;
+    import java.io.InputStreamReader;
+    import java.util.*;
+
+    public class Main {
+        static Scanner scanner = new Scanner(System.in);
+        static class Card {
+            String term;
+            String definition;
+
+            public String getTerm() {
+                return term;
+            }
+
+            public void setTerm(String term) {
+                this.term = term;
+            }
+
+            public String getDefinition() {
+                return definition;
+            }
+
+            public void setDefinition(String definition) {
+                this.definition = definition;
+            }
+        }
+
+        public static void main(String[] args) throws IOException {
+
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("Input the number of cards:");
+            int cardNum = scanner.nextInt();
+            //  System.out.println(cardNum);
+            //  List<Card> cardList = new ArrayList<>();
+            Map<String, String> cardMap = new LinkedHashMap<>();
+
+
+
+
+    //        for (int j = 0; j < cardNum; j++) {
+    //            Card card = new Card();
+    //            cardMap.put(card.getTerm(), card.getDefinition());
+    //        }
+
+            for (int i = 0; i < cardNum; i++) {
+              //  System.out.println(cardMap.size());
+
+                boolean ok = false;
+                boolean firstTimeTerm = true;
+                boolean firstTimeDef = true;
+                String term = null;
+                String definition = null;
+                while (!ok) {
+
+
+                    if (firstTimeTerm) {
+                        System.out.println("The card #" + (i+1) +":");
+                        term = reader.readLine();
+                    }
+
+
+                    ok = true;
+                    if (cardMap.containsKey(term)) {
+                        System.out.println("The card " + "\"" + term + "\"" + " already exists. Try again:");
+                        firstTimeTerm = false;
+                        ok = false;
+                        term = reader.readLine();
+                        continue;
+                    }
+
+                    if (firstTimeDef) {
+                        System.out.println("The definition of the card #" + (i+1) +":");
+                        definition = reader.readLine();
+                    }
+
+
+                    if (cardMap.containsValue(definition)){
+                        System.out.println("The definition " + "\"" + definition + "\"" + " already exists. Try again:");
+                        ok = false;
+                        firstTimeDef = false;
+                        definition = reader.readLine();
+                    } else {
+                        cardMap.put(term, definition);
+                    }
+
+                }
+
+
+            }
+
+            for (String term : cardMap.keySet()) {
+
+                System.out.println("Print the definition of " + "\"" + term + "\"");
+                String definition = reader.readLine();
+                if (cardMap.get(term).equals(definition)) {
+                    System.out.println("Correct Answer");
+                } else if (cardMap.containsValue(definition)) {
+                    System.out.println("Wrong Answer. The correct one is " + "\"" + cardMap.get(term) + "\"," +
+                            " you've just written the definition of " + "\"" + getKeysByValue(cardMap, definition) + "\"");
+                } else {
+                    System.out.println("Wrong Answer. The correct one is " + "\"" + cardMap.get(term) + "\"");
+                }
+
+            }
+
+        }
+
+        public static <T, E> T getKeysByValue(Map<T, E> map, E value) {
+
+            for (Map.Entry<T, E> entry : map.entrySet()) {
+                if (Objects.equals(value, entry.getValue())) {
+                    return entry.getKey();
+                }
+
+            }
+            return null;
+        }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/projects/44/stages/236/implement
+status: Solved
+record: 6

@@ -1,0 +1,282 @@
+type: edu
+custom_name: stage6
+files:
+- name: test/FlashcardsTest.java
+  visible: false
+  text: |
+    import common.FlashcardsStage6Test;
+
+    public class FlashcardsTest extends FlashcardsStage6Test {
+        // just empty class, but not abstract so it can be run
+    }
+  learner_created: false
+- name: src/flashcards/Main.java
+  visible: true
+  text: |
+    package flashcards;
+
+    import java.io.BufferedReader;
+    import java.io.BufferedWriter;
+    import java.io.IOException;
+    import java.io.InputStreamReader;
+    import java.nio.file.Files;
+    import java.nio.file.Path;
+    import java.nio.file.Paths;
+    import java.nio.file.StandardOpenOption;
+    import java.util.*;
+
+    public class Main {
+
+       static BufferedReader reader =
+                new BufferedReader(new InputStreamReader(System.in));
+
+       static Map<String, String> cardMap = new LinkedHashMap<>();
+
+        static Scanner scanner = new Scanner(System.in);
+
+        static class Card {
+            String term;
+            String definition;
+
+            public String getTerm() {
+                return term;
+            }
+
+            public void setTerm(String term) {
+                this.term = term;
+            }
+
+            public String getDefinition() {
+                return definition;
+            }
+
+            public void setDefinition(String definition) {
+                this.definition = definition;
+            }
+        }
+
+        public static void addCardImport(String term, String def) {
+
+            if (cardMap.containsKey(term)) {
+                cardMap.replace(term, def);
+            } else {
+                cardMap.put(term, def);
+            }
+
+
+
+        }
+
+        public static void addCard () throws IOException {
+
+            boolean ok = false;
+            String term = null;
+            String definition = null;
+
+            while (!ok) {
+
+                    System.out.println("The card:");
+                    term = reader.readLine();
+                     ok = true;
+
+                if (cardMap.containsKey(term)) {
+                    System.out.println("The card " + "\"" + term + "\"" + " already exists.");
+                    break;
+                }
+
+                    System.out.println("The definition of the card:");
+                    definition = reader.readLine();
+
+                if (cardMap.containsValue(definition)){
+                    System.out.println("The definition " + "\"" + definition + "\"" + " already exists.");
+                    break;
+
+                } else {
+                    System.out.println("The pair " + "\"" + term + "\"" + ":" + "\"" + definition + "\"" + " has been added.");
+                    cardMap.put(term, definition);
+                }
+
+            }
+
+
+        }
+
+        public static void exportCards() throws IOException {
+
+            System.out.println("File name:");
+
+            String fileName = reader.readLine();
+
+            Path path = Paths.get(fileName);
+
+            try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+
+                int counter = 0;
+
+                for (String term : cardMap.keySet()) {
+
+                    writer.write(term);
+                    writer.newLine();
+                    writer.write(cardMap.get(term));
+                    writer.newLine();
+                    counter++;
+                }
+            System.out.println(counter + " cards have been saved.");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+        public static void importCards() throws IOException {
+
+            System.out.println("File name:");
+
+            String fileName = reader.readLine();
+
+            Path path = Paths.get(fileName);
+
+            try (BufferedReader reader = Files.newBufferedReader(path)) {
+
+
+            int counter = 0;
+
+                while (true) {
+                    String term = null;
+                    term = reader.readLine();
+                    if (term == null) {
+                        break;
+                    }
+                    String def = null;
+                    def = reader.readLine();
+                    if (def == null) {
+                        break;
+                    }
+                    addCardImport(term, def);
+                    counter++;
+                }
+
+                System.out.println(counter + " cards have been loaded.");
+            } catch (IOException e) {
+              //  System.err.format("IOException: %s%n" + e);
+                System.out.println("File not found.");
+            }
+
+        }
+
+        public static void removeCard() throws IOException {
+
+            System.out.println("The card:");
+            String removingCard = reader.readLine();
+
+            if (cardMap.containsKey(removingCard)) {
+                cardMap.remove(removingCard);
+                System.out.println("The card has been removed.");
+            } else {
+                System.out.println("Can't remove " + "\"" + removingCard + "\"" + ": there is no such card.");
+            }
+
+
+        }
+
+        public static void askCard() throws IOException {
+
+            Random generator = new Random();
+
+            Object[] keys = cardMap.keySet().toArray();
+
+          //  List<String> used = new ArrayList<>();
+
+
+          //  System.out.println("random term string is " + randomTerm);
+            System.out.println("How many times to ask?");
+            int times = Integer.parseInt(reader.readLine());
+
+            for (int i = 0; i < times; i++)  {
+
+                String randomTerm = (String) keys[generator.nextInt(keys.length)];
+
+             /* ====VALIDATION==== NOT USED YET   while (used.contains(randomTerm)) {
+                    randomTerm = (String) keys[generator.nextInt(keys.length)];
+                }*/
+
+                System.out.println("Print the definition of " + "\"" + randomTerm + "\"");
+                String definition = reader.readLine();
+                if (cardMap.get(randomTerm).equals(definition)) {
+                    System.out.println("Correct Answer");
+                } else if (cardMap.containsValue(definition)) {
+                    System.out.println("Wrong Answer. The correct one is " + "\"" + cardMap.get(randomTerm) + "\"," +
+                            " you've just written the definition of " + "\"" + getKeysByValue(cardMap, definition) + "\"");
+                } else {
+                    System.out.println("Wrong Answer. The correct one is " + "\"" + cardMap.get(randomTerm) + "\"");
+                }
+               // used.add(randomTerm);
+            }
+
+        }
+
+        public static void main(String[] args) throws IOException {
+
+            boolean menu = true;
+
+            while (menu) {
+                System.out.println("Input the action (add, remove, import, export, ask, exit):");
+
+                switch (reader.readLine()) {
+
+                    case "add":
+                        addCard();
+                        break;
+                    case "remove":
+                        removeCard();
+                        break;
+                    case "import":
+                        importCards();
+                        break;
+                    case "export":
+                        exportCards();
+                        break;
+                    case "ask":
+                        askCard();
+                        break;
+                    case "exit":
+                        menu = false;
+                        System.out.println("Bye bye!");
+                        break;
+                  /*  case "map":
+                        System.out.println(cardMap);
+                        break;*/
+                    default:
+                        System.out.println("No such command. Try again");
+                        break;
+                }
+
+
+
+
+
+            }
+
+
+        }
+
+        public static <T, E> T getKeysByValue(Map<T, E> map, E value) {
+
+            for (Map.Entry<T, E> entry : map.entrySet()) {
+                if (Objects.equals(value, entry.getValue())) {
+                    return entry.getKey();
+                }
+
+            }
+            return null;
+        }
+    }
+  learner_created: false
+- name: capitals.txt
+  visible: true
+  learner_created: true
+feedback_link: https://hyperskill.org/projects/44/stages/237/implement
+status: Solved
+record: 2

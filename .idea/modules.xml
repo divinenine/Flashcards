@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Flashcards.iml" filepath="$PROJECT_DIR$/Flashcards.iml" group="Flashcards" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Flashcards/task/Flashcards-task.iml" filepath="$PROJECT_DIR$/.idea/modules/Flashcards/task/Flashcards-task.iml" group="Flashcards/Flashcards-task" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Problems/Calculator - 2/Problems-Calculator_-_2.iml" filepath="$PROJECT_DIR$/.idea/modules/Problems/Calculator - 2/Problems-Calculator_-_2.iml" group="Flashcards/Problems-Calculator_-_2" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/util/util.iml" filepath="$PROJECT_DIR$/.idea/modules/util/util.iml" group="Flashcards/util" />
+    </modules>
+  </component>
+</project>

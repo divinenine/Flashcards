@@ -1,0 +1,88 @@
+type: edu
+custom_name: stage4
+files:
+- name: test/FlashcardsTest.java
+  visible: false
+  text: |
+    import common.FlashcardsStage4Test;
+
+    public class FlashcardsTest extends FlashcardsStage4Test {
+        // just empty class, but not abstract so it can be run
+    }
+  learner_created: false
+- name: src/flashcards/Main.java
+  visible: true
+  text: |
+    package flashcards;
+
+    import java.io.BufferedReader;
+    import java.io.IOException;
+    import java.io.InputStreamReader;
+    import java.util.*;
+
+    public class Main {
+       static Scanner scanner = new Scanner(System.in);
+        static class Card {
+            String term;
+            String definition;
+
+            public String getTerm() {
+                return term;
+            }
+
+            public void setTerm(String term) {
+                this.term = term;
+            }
+
+            public String getDefinition() {
+                return definition;
+            }
+
+            public void setDefinition(String definition) {
+                this.definition = definition;
+            }
+        }
+
+        public static void main(String[] args) throws IOException {
+
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("Input the number of cards:");
+            int cardNum = scanner.nextInt();
+          //  System.out.println(cardNum);
+            List<Card> cardList = new ArrayList<>();
+
+            for (int j = 0; j < cardNum; j++) {
+                cardList.add(new Card());
+            }
+
+            for (int i = 0; i < cardList.size(); i++) {
+
+                System.out.println("The card #" + (i+1) +":");
+                String term = reader.readLine();
+                cardList.get(i).setTerm(term);
+                System.out.println("The definition of the card #" + (i+1) +":");
+                String definition = reader.readLine();
+                cardList.get(i).setDefinition(definition);
+            }
+
+            for (int k = 0; k < cardList.size(); k++) {
+
+                System.out.println("Print the definition of " + "\"" + cardList.get(k).getTerm() + "\"");
+                String definition = reader.readLine();
+                if (definition.equals(cardList.get(k).getDefinition())) {
+                    System.out.println("Correct Answer");
+                } else {
+                    System.out.println("Wrong Answer. The correct one is " + "\"" + cardList.get(k).getDefinition() + "\"");
+                }
+
+            }
+
+
+
+        }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/projects/44/stages/235/implement
+status: Solved
+record: 5

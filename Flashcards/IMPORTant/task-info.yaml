@@ -1,0 +1,396 @@
+type: edu
+custom_name: stage7
+files:
+- name: test/FlashcardsTest.java
+  visible: false
+  text: |
+    import common.FlashcardsStage7Test;
+
+    public class FlashcardsTest extends FlashcardsStage7Test {
+        // just empty class, but not abstract so it can be run
+    }
+  learner_created: false
+- name: src/flashcards/Main.java
+  visible: true
+  text: |
+    package flashcards;
+
+    import java.io.BufferedReader;
+    import java.io.BufferedWriter;
+    import java.io.IOException;
+    import java.io.InputStreamReader;
+    import java.nio.charset.Charset;
+    import java.nio.file.Files;
+    import java.nio.file.Path;
+    import java.nio.file.Paths;
+    import java.nio.file.StandardOpenOption;
+    import java.util.*;
+    import java.util.Map.Entry;
+
+    public class Main {
+
+        static List<String> log = new ArrayList<>();
+
+        static BufferedReader reader =
+                new BufferedReader(new InputStreamReader(System.in));
+
+        static Map<String, String> cardMap = new LinkedHashMap<>();
+
+        static Map<String, Integer> mistakeMap = new HashMap<>();
+
+       // static Scanner scanner = new Scanner(System.in);
+
+
+        public static void addCardImport(String term, String def, String mistake) {
+
+            int intMistake = Integer.parseInt(mistake);
+
+            if (cardMap.containsKey(term) && intMistake != 0) {
+                cardMap.replace(term, def);
+                mistakeMap.replace(term, intMistake);
+            } else {
+                cardMap.put(term, def);
+                if (intMistake != 0) {
+                    mistakeMap.put(term, intMistake);
+                }
+
+            }
+
+
+
+        }
+
+        static void outputMsg(String msg) {
+                System.out.println(msg);
+                log.add(msg);
+        }
+
+        static String getUserInput() throws IOException {
+            String input = reader.readLine();
+            log.add(input);
+            return input;
+        }
+
+        public static void addCard () throws IOException {
+
+            boolean ok = false;
+            String term = null;
+            String definition = null;
+
+            while (!ok) {
+
+                outputMsg("The card:");
+                term = getUserInput();
+                ok = true;
+
+                if (cardMap.containsKey(term)) {
+                    outputMsg("The card " + "\"" + term + "\"" + " already exists.");
+                    break;
+                }
+
+                outputMsg("The definition of the card:");
+                definition = getUserInput();
+
+                if (cardMap.containsValue(definition)){
+                    outputMsg("The definition " + "\"" + definition + "\"" + " already exists.");
+                    break;
+
+                } else {
+                    outputMsg("The pair " + "\"" + term + "\"" + ":" + "\"" + definition + "\"" + " has been added.");
+                    cardMap.put(term, definition);
+                }
+
+            }
+
+
+        }
+
+        public static void exportCards() throws IOException {
+
+            outputMsg("File name:");
+
+            String fileName = getUserInput();
+
+            Path path = Paths.get(fileName);
+
+            try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+
+                int counter = 0;
+
+                for (String term : cardMap.keySet()) {
+
+                    writer.write(term);
+                    writer.newLine();
+                    writer.write(cardMap.get(term));
+                    writer.newLine();
+                    if (mistakeMap.containsKey(term)) {
+                        writer.write(String.valueOf(mistakeMap.get(term)));
+                        writer.newLine();
+                    } else {
+                        writer.write("0");
+                        writer.newLine();
+                    }
+
+                    counter++;
+                }
+                outputMsg(counter + " cards have been saved.");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+        public static void importCards() throws IOException {
+
+            outputMsg("File name:");
+
+            String fileName = getUserInput();
+
+            Path path = Paths.get(fileName);
+
+            try (BufferedReader reader = Files.newBufferedReader(path)) {
+
+
+                int counter = 0;
+
+                while (true) {
+                    String term = null;
+                    term = reader.readLine();
+                    if (term == null) {
+                        break;
+                    }
+                    String def = null;
+                    def = reader.readLine();
+                    if (def == null) {
+                        break;
+                    }
+                    String mistake = "0";
+                    mistake = reader.readLine();
+                    addCardImport(term, def, mistake);
+                    counter++;
+                }
+
+                outputMsg(counter + " cards have been loaded.");
+            } catch (IOException e) {
+                //  System.err.format("IOException: %s%n" + e);
+                outputMsg("File not found.");
+            }
+
+        }
+
+        public static void removeCard() throws IOException {
+
+            outputMsg("The card:");
+            String removingCard = getUserInput();
+
+            if (cardMap.containsKey(removingCard)) {
+                cardMap.remove(removingCard);
+                mistakeMap.remove(removingCard);
+                outputMsg("The card has been removed.");
+            } else {
+                outputMsg("Can't remove " + "\"" + removingCard + "\"" + ": there is no such card.");
+            }
+
+
+        }
+
+        public static void askCard() throws IOException {
+
+            Random generator = new Random();
+
+            Object[] keys = cardMap.keySet().toArray();
+
+            //  List<String> used = new ArrayList<>();
+
+
+            //  System.out.println("random term string is " + randomTerm);
+            outputMsg("How many times to ask?");
+            int times = Integer.parseInt(getUserInput());
+
+            for (int i = 0; i < times; i++)  {
+
+                String randomTerm = (String) keys[generator.nextInt(keys.length)];
+
+             /* ====VALIDATION==== NOT USED YET   while (used.contains(randomTerm)) {
+                    randomTerm = (String) keys[generator.nextInt(keys.length)];
+                }*/
+
+                outputMsg("Print the definition of " + "\"" + randomTerm + "\"");
+                String definition = getUserInput();
+               // int mistake = 0;
+                if (cardMap.get(randomTerm).equals(definition)) {
+                    outputMsg("Correct Answer");
+                } else if (cardMap.containsValue(definition)) {
+                    outputMsg("Wrong Answer. The correct one is " + "\"" + cardMap.get(randomTerm) + "\"," +
+                            " you've just written the definition of " + "\"" + getKeysByValue(cardMap, definition) + "\"");
+              //      mistake++;
+                 countMistakesOnCard(definition, randomTerm);
+
+                } else {
+                    outputMsg("Wrong Answer. The correct one is " + "\"" + cardMap.get(randomTerm) + "\"");
+                //    mistake++;
+                    countMistakesOnCard(definition, randomTerm);
+                }
+                // used.add(randomTerm);
+            }
+
+        }
+
+        public static void countMistakesOnCard (String definition, String randomTerm) {
+
+            if (mistakeMap.containsKey(randomTerm)) {
+                int cardMistakes = mistakeMap.get(randomTerm);
+                mistakeMap.replace(randomTerm, ++cardMistakes);
+            } else {
+                mistakeMap.put(randomTerm, 1);
+            }
+
+        }
+
+        public static void main(String[] args) throws IOException {
+
+            boolean menu = true;
+
+            while (menu) {
+                outputMsg("Input the action (add, remove, import, export, ask, log, hardest card, reset stats, exit):");
+
+                switch (getUserInput()) {
+
+                    case "add":
+                        addCard();
+                        break;
+                    case "remove":
+                        removeCard();
+                        break;
+                    case "import":
+                        importCards();
+                        break;
+                    case "export":
+                        exportCards();
+                        break;
+                    case "ask":
+                        askCard();
+                        break;
+                    case "hardest card":
+                        printHardest();
+                        break;
+                    case "reset stats":
+                        mistakeMap.clear();
+                        outputMsg("Card statistics has been reset.");
+                        break;
+                    case "exit":
+                        menu = false;
+                        outputMsg("Bye bye!");
+                        break;
+                    case "log":
+                        logFile();
+                        outputMsg("The log has been saved.");
+                        break;
+                   case "map":
+                        //insertFake();
+                        System.out.println(mistakeMap);
+                       System.out.println(cardMap);
+                        break;
+                    default:
+                        outputMsg("No such command. Try again");
+                        break;
+                }
+
+
+
+
+
+            }
+
+
+        }
+
+        private static void insertFake() {
+
+            mistakeMap.put("testterm1", 2);
+            mistakeMap.put("testterm2", 2);
+
+        }
+
+
+        public static <K, V extends Comparable<V>> V maxUsingCollectionsMaxAndLambda(Map<K, V> map) {
+            Entry<K, V> maxEntry = Collections.max(map.entrySet(), (Entry<K, V> e1, Entry<K, V> e2) -> e1.getValue()
+                    .compareTo(e2.getValue()));
+            return maxEntry.getValue();
+        }
+
+        private static void printHardest() {
+
+            if (mistakeMap.size() == 0) {
+                outputMsg("There are no cards with errors.");
+                return;
+            }
+
+            int maxMistake = maxUsingCollectionsMaxAndLambda(mistakeMap);
+            StringBuilder sb = new StringBuilder();
+
+            boolean multiple = false;
+            for (String term : mistakeMap.keySet()) {
+               if (mistakeMap.get(term) == maxMistake) {
+                   if (sb.toString().equals("")) {
+                       sb.append("\"").append(term).append("\"");
+                   } else {
+                       sb.append(", ").append("\"").append(term).append("\"");
+                       multiple = true;
+                   }
+               }
+
+            }
+
+            if (!multiple) {
+                outputMsg("The hardest card is " + sb.toString() + "." + " You have " + maxMistake + " errors answering it.");
+            } else {
+                outputMsg("The hardest cards are " + sb.toString() + "." + " You have " + maxMistake + " errors answering them.");
+            }
+
+
+
+        }
+
+        private static void logFile() throws IOException {
+
+            outputMsg("File name:");
+
+            String fileName = getUserInput();
+
+            Path out = Paths.get(fileName);
+
+            Files.write(out, log, Charset.defaultCharset());
+
+        }
+
+        public static <T, E> T getKeysByValue(Map<T, E> map, E value) {
+
+            for (Map.Entry<T, E> entry : map.entrySet()) {
+                if (Objects.equals(value, entry.getValue())) {
+                    return entry.getKey();
+                }
+
+            }
+            return null;
+        }
+    }
+  learner_created: false
+- name: capitals.txt
+  visible: true
+  text: |
+    France
+    Paris
+    5
+    Russia
+    Moscow
+    5
+  learner_created: false
+- name: capitalsNew.txt
+  visible: true
+  learner_created: true
+feedback_link: https://hyperskill.org/projects/44/stages/238/implement
+status: Solved
+record: 7
